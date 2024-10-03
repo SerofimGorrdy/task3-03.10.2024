@@ -1,0 +1,49 @@
+import numpy as np
+
+# Матрица стоимости перевозок
+costs = np.array([[500, 1000, 900],
+                  [600, 1100, 900],
+                  [400, 1000, 900]], dtype=float)
+
+# Объёмы поставщиков
+supply = [1000, 1500, 700]
+
+
+
+# Матрица стоимости перевозок
+costs = np.array([[500, 1000, 900],
+                  [600, 1100, 900],
+                  [400, 1000, 900]], dtype=float)
+
+# Объёмы поставщиков
+supply = [1000, 1500, 700]
+
+# Потребности потребителей
+demand = [1200, 1000, 1000]
+
+# Метод наименьшей стоимости
+def least_cost_method(costs, supply, demand):
+    plan = np.zeros_like(costs)  # Пустой план
+    while np.sum(supply) > 0 and np.sum(demand) > 0:
+        i, j = divmod(np.argmin(costs), costs.shape[1])  # Индексы минимальной стоимости
+        amount = min(supply[i], demand[j])  # Берём минимальное из предложения и спроса
+        plan[i, j] = amount  # Заполняем план
+        supply[i] -= amount  # Уменьшаем предложение
+        demand[j] -= amount  # Уменьшаем спрос
+        if supply[i] == 0:
+            costs[i, :] = np.inf  # "Удаляем" строку
+        if demand[j] == 0:
+            costs[:, j] = np.inf  # "Удаляем" столбец
+    return plan
+
+# Целевая функция
+def calculate_objective(plan, costs):
+    costs_copy = np.where(np.isinf(costs), 0, costs)  # Заменяем np.inf на 0
+    return np.sum(plan * costs_copy)
+
+# Решение
+plan = least_cost_method(costs, supply, demand)
+objective_value = calculate_objective(plan, costs)
+
+print("Опорный план:\n", plan)
+print("Целевая функция F =", objective_value)
